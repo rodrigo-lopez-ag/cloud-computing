@@ -20,18 +20,29 @@ int main()
 {
 
     std::cout << "Sum arrays in parallel...\n";
-    int optional = 1000;
-    std::cout << "Enter a number greater than 10:  ";
+    int optional;
+    std::cout << "Enter a number greater than 9: ";
     std::cin >> optional;
 
-    float a[N], b[N], c[N];
+    float* a;
+    float* b;
+    float* c;
 
-    if (optional > 10) {
-        a[optional], b[optional], c[optional];
+    if (optional > 9) {
+        a = new float[optional];
+        b = new float[optional];
+        c = new float[optional];
+
         fillArray(a, b, optional);
     }
     else
     {
+        a = new float[N];
+        b = new float[N];
+        c = new float[N];
+
+        optional = N;
+
         for (int i = 0; i < N; i++)
         {
             a[i] = i * 10;
@@ -43,12 +54,19 @@ int main()
 
     int chunks = chunk;
 
+    std::cout << "Array size: " << optional << std::endl;
+
     #pragma omp parallel for \
     shared(a,b,c,chunks) private(i) \
     schedule(static, chunks)
 
-    for (i = 0; i < N; i++)
+    for (i = 0; i < optional; i++)
     {
+        if (i == 0)
+        {
+            int threads = omp_get_num_threads();
+            std::cout << "threads: " << threads << std::endl;
+        }
         c[i] = a[i] + b[i];
     }
     std::cout << "Array a first 10 elements" << std::endl;
@@ -73,7 +91,7 @@ void fillArray(float* a, float* b, int total)
 void printArray(float* d)
 {
     for (int i = 0; i < show; i++)
-        std::cout << d[i] << "\t - \t ";
+        std::cout << d[i] << " - ";
     std::cout << std::endl;
 }
 
